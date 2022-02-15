@@ -1,5 +1,5 @@
 const axios = require('./src/AxiosHelper');
-const { mergeData } = require('./src/DataHelper');
+const { mergeData, createNodeManifest } = require('./src/DataHelper');
 const moment = require('moment');
 
 exports.onPreInit = () => console.log("Loaded gatsby-source-storm")
@@ -11,7 +11,7 @@ exports.sourceNodes = async ({
     getNodesByType,
     cache
   }, pluginOptions) => {
-    const { createNode } = actions
+    const { createNode, unstable_createNodeManifest } = actions
 
     const pluginName = "gatsby-source-storm";
     const cacheKey = "gatsby-source-storm-data";
@@ -116,7 +116,15 @@ exports.sourceNodes = async ({
                         description: `A piece of Storm Content - ${y.name}`,
                     },
                 };
-                createNode(contentNode);
+                const gatsbyNode = createNode(contentNode);
+
+                // for these, create a manifest so we can handle incremental builds
+                createNodeManifest({
+                    entryId: c,
+                    entryNode: gatsbyNode,
+                    appKey: pluginOptions.appkey,
+                    unstable_createNodeManifest
+                })
 
                 // create types for the presentation types
                 if(y.slug === "seminar") {
