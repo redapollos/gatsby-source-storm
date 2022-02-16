@@ -1,6 +1,6 @@
 {
   "name": "gatsby-source-storm",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Gatsby source plugin for retrieving data from the Storm CMS",
   "main": "index.js",
   "scripts": {
@@ -23,5 +23,13 @@
     "@babel/register": "^7.17.0",
     "babel-preset-gatsby-package": "^2.7.0"
   },
-  "types": "index.d.ts"
+  "types": "index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/redapollos/gatsby-source-storm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/redapollos/gatsby-source-storm/issues"
+  },
+  "homepage": "https://github.com/redapollos/gatsby-source-storm#readme"
 }
