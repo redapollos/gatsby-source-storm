@@ -8,7 +8,6 @@ exports.sourceNodes = async ({
     actions,
     createContentDigest,
     createNodeId,
-    getNodesByType,
     cache
   }, pluginOptions) => {
     const { createNode, unstable_createNodeManifest } = actions
@@ -51,8 +50,6 @@ exports.sourceNodes = async ({
     // console.log(data.contentTypes);
     // Create all the gatsby nodes
     try {                
-        const defaultStartDate = new Date(2000, 1, 1);
-        const utcNow = new Date().getTime();        
 
         // go through each items in the json array and create a new "node" in StormContent/allStormContent
         data.contentTypes.forEach((y) => {
@@ -83,24 +80,7 @@ exports.sourceNodes = async ({
 
                 // calculate some unique values
                 const childId = createNodeId(`storm${c.id}`);
-
-                // get contenttype specific values
-                if(y.slug === "seminar") {
-                    let propStartDate = getPropertyValue(c.meta, 'start-datetime');
-                    c.startDateTime = !!propStartDate ? new Date(propStartDate) : defaultStartDate;
-                    c.isFuture = c.startDateTime > utcNow;
-                }
                 
-                if(y.slug === "state-requirements") {
-                    c.state = getPropertyValue(c.meta, 'state');
-                    let stateList = getProperty(data.systemLists, 'states', 'slug');
-                    c.stateName = stateList ? getProperty(stateList.items, c.state, 'value')?.label : null;
-                }
-
-                if(y.slug === "presenters") {
-                    c.lastName = getPropertyValue(c.meta, 'last-name');
-                }
-
                 // Regular Entry
                 const contentNode = {
                     ...c, // pass all data into this object
@@ -126,51 +106,6 @@ exports.sourceNodes = async ({
                     unstable_createNodeManifest
                 })
 
-                // create types for the presentation types
-                if(y.slug === "seminar") {
-                    
-                    // Live Webinars
-                    if(c.meta.some(o => o.fieldTypeName === "reference" && 
-                                    o.reference !== null && 
-                                    o.reference.some(r => r.slug === "live-webinar"))) {
-                        const contentNodeLive = {
-                            ...c, // pass all data into this object
-                            contentId: c.id,
-                            slug: c.slug,
-                            sourceInstanceName: pluginName,
-                            id: childId + "live",
-                            children: [],
-                            parent: pluginName,
-                            internal: {
-                                type: `Storm${y.name.replace(" ", "")}Live`, // the name of the node used in graphQL
-                                contentDigest: createContentDigest(c),
-                                description: `A piece of Storm Content - ${y.name} - Live Webinar`,
-                            },
-                        };
-                        createNode(contentNodeLive);
-                    }
-                    
-                    // Recorded
-                    if(c.meta.some(o => o.fieldTypeName === "reference" && 
-                                    o.reference !== null && 
-                                    o.reference.some(r => r.slug === "recorded-webinar"))) {
-                        const contentNodeRecorded = {
-                            ...c, // pass all data into this object
-                            contentId: c.id,
-                            slug: c.slug,
-                            sourceInstanceName: pluginName,
-                            id: childId + "recorded",
-                            children: [],
-                            parent: pluginName,
-                            internal: {
-                                type: `Storm${y.name.replace(" ", "")}Recorded`, // the name of the node used in graphQL
-                                contentDigest: createContentDigest(c),
-                                description: `A piece of Storm Content - ${y.name} - Recorded Webinar`,
-                            },
-                        };
-                        createNode(contentNodeRecorded);
-                    }
-                }
             });
         });
 
