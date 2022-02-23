@@ -11,7 +11,7 @@ A Gatsby source plugin for the Storm CMS
 
 ## 🚀 Quick start
 
-To get started creating a new plugin, you can follow these steps:
+To get started, you can follow these steps:
 
 1. Install the plugin
 
