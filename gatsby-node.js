@@ -96,6 +96,11 @@ exports.sourceNodes = async ({
                         description: `A piece of Storm Content - ${y.name}`,
                     },
                 };
+
+                // map all meta into first rate attributes
+                for(let m of c.meta)
+                    contentNode[sluggify(m.name)] = m.value;
+
                 const gatsbyNode = createNode(contentNode);
 
                 // for these, create a manifest so we can handle incremental builds
@@ -180,6 +185,10 @@ exports.sourceNodes = async ({
 }
 
 //#region Helpers
+function sluggify(str) {
+    return str.replace(/-/gi, "_");
+}
+
 function getProperty (properties, slug, propname = 'slug') {    
     if(slug === null) return null;    
     let prop = properties.find(o => o[propname]?.toLowerCase() === slug.toLowerCase());    
