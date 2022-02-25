@@ -28,6 +28,7 @@ exports.sourceNodes = async ({
     const lastFetched = cachedData ? await cache.get(cacheTimestamp) : null;
     const datePart = lastFetched ? `/${moment(lastFetched).format()}` : "";
     const url = `https://${pluginOptions.host}/api/system/export${datePart}`;
+    const utcNow = new Date().getTime();
 
     if(!pluginOptions.appkey) {
         console.log("gatsby-cource-storm error: appkey wasn't given");
@@ -70,7 +71,18 @@ exports.sourceNodes = async ({
                     description: "A Storm Content Type",
                 },
             };
-            createNode(contentTypeNode);
+            
+            const n = createNode(contentTypeNode);
+
+            // for these, create a manifest so we can handle incremental builds
+            createNodeManifest({
+                entryItem: y,
+                entryNode: n,
+                appKey: pluginOptions.appkey,
+                unstable_createNodeManifest
+            });
+
+
 
             // loop through all the content and fill those out
             data.contentList.filter(o => o.contentTypeSlug === y.slug).forEach((c) => {
@@ -97,19 +109,26 @@ exports.sourceNodes = async ({
                     },
                 };
 
-                // map all meta into first rate attributes
-                for(let m of c.meta)
+                // map all meta into first rate properties
+                for(let m of c.meta) {
                     contentNode[sluggify(m.name)] = m.value;
+
+                    // if date or time, create a numeric field equivalent
+                    if((m.fieldType === 7 || m.fieldType === 8 || m.fieldType === 9) && m.value) {
+                        contentNode[`${sluggify(m.name)}_isFuture`] = Date.parse(m.value) > utcNow;
+                        contentNode[`${sluggify(m.name)}_milliseconds`] = m.value ? parseInt(Date.parse(m.value),10) : 0;
+                    }                        
+                }                    
 
                 const gatsbyNode = createNode(contentNode);
 
                 // for these, create a manifest so we can handle incremental builds
                 createNodeManifest({
-                    entryId: c,
+                    entryItem: c,
                     entryNode: gatsbyNode,
                     appKey: pluginOptions.appkey,
                     unstable_createNodeManifest
-                })
+                });
 
             });
         });
@@ -117,7 +136,7 @@ exports.sourceNodes = async ({
         // systemlists
         data.systemLists?.forEach((c) => {
             const childId = createNodeId(`${pluginName}${c.id}syslist`);
-            const contentTypeNode = {
+            const listNode = {
                 ...c, // pass all data into this object
                 menuId: c.id,
                 slug: c.slug,
@@ -131,13 +150,21 @@ exports.sourceNodes = async ({
                     description: "A Storm List",
                 },
             };
-            createNode(contentTypeNode);
+            const n = createNode(listNode);
+
+            // for these, create a manifest so we can handle incremental builds
+            createNodeManifest({
+                entryItem: c,
+                entryNode: n,
+                appKey: pluginOptions.appkey,
+                unstable_createNodeManifest
+            });
         });
 
         // go through menus to create stormMenus/allStormMenus
         data.menus.forEach((c) => {
             const childId = createNodeId(`${pluginName}${c.id}menu`);
-            const contentTypeNode = {
+            const menuNode = {
                 ...c, // pass all data into this object
                 menuId: c.id,
                 slug: c.slug,
@@ -151,13 +178,22 @@ exports.sourceNodes = async ({
                     description: "A Storm Menu",
                 },
             };
-            createNode(contentTypeNode);
+            
+            const n = createNode(menuNode);
+
+            // for these, create a manifest so we can handle incremental builds
+            createNodeManifest({
+                entryItem: c,
+                entryNode: n,
+                appKey: pluginOptions.appkey,
+                unstable_createNodeManifest
+            });
         });
 
         // forms
         data.forms.forEach((c) => {
             const childId = createNodeId(`${pluginName}${c.id}form`);
-            const contentTypeNode = {
+            const formNode = {
                 ...c, // pass all data into this object
                 formId: c.id,
                 slug: c.slug,
@@ -171,7 +207,16 @@ exports.sourceNodes = async ({
                     description: "A Storm Form",
                 },
             };
-            createNode(contentTypeNode);
+            
+            const n = createNode(formNode);
+
+            // for these, create a manifest so we can handle incremental builds
+            createNodeManifest({
+                entryItem: c,
+                entryNode: n,
+                appKey: pluginOptions.appkey,
+                unstable_createNodeManifest
+            });
         });
 
        } catch (error) {
