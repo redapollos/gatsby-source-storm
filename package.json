@@ -1,35 +1,35 @@
 {
-  "name": "gatsby-source-storm",
-  "version": "0.1.4",
-  "description": "Gatsby source plugin for retrieving data from the Storm CMS",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "echo \"No build script setup\""
-  },
-  "keywords": [
-    "gatsby",
-    "gatsby-plugin"
-  ],
-  "author": "Kristian Ranstrom <kristian@rainstormtech.com>",
-  "license": "0BSD",
-  "dependencies": {
-    "axios": "^0.26.0",
-    "moment": "^2.29.1"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.15.4",
-    "@babel/core": "^7.15.5",
-    "@babel/register": "^7.17.0",
-    "babel-preset-gatsby-package": "^2.7.0"
-  },
-  "types": "index.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/redapollos/gatsby-source-storm.git"
-  },
-  "bugs": {
-    "url": "https://github.com/redapollos/gatsby-source-storm/issues"
-  },
-  "homepage": "https://github.com/redapollos/gatsby-source-storm#readme"
+    "name": "gatsby-source-storm",
+    "version": "0.1.9",
+    "description": "Gatsby source plugin for retrieving data from the Storm CMS",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "echo \"No build script setup\""
+    },
+    "keywords": [
+        "gatsby",
+        "gatsby-plugin"
+    ],
+    "author": "Kristian Ranstrom <kristian@rainstormtech.com>",
+    "license": "0BSD",
+    "dependencies": {
+        "axios": "^1.2.2",
+        "moment": "^2.29.4"
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.20.7",
+        "@babel/core": "^7.20.12",
+        "@babel/register": "^7.18.9",
+        "babel-preset-gatsby-package": "^3.4.0"
+    },
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/redapollos/gatsby-source-storm.git"
+    },
+    "bugs": {
+        "url": "https://github.com/redapollos/gatsby-source-storm/issues"
+    },
+    "homepage": "https://github.com/redapollos/gatsby-source-storm#readme"
 }
