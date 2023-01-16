@@ -60,14 +60,17 @@ var createNodeManifest = function ({
     appKey, // the cms project data
     entryNode, // the Gatsby node
     unstable_createNodeManifest,
+    debug,
 }) {
     // This env variable is provided automatically on Gatsby Cloud hosting
-    const isPreview = process.env.GATSBY_IS_PREVIEW === true;
+    const isPreview = process.env.GATSBY_IS_PREVIEW === `true`;
     const createNodeManifestIsSupported = typeof unstable_createNodeManifest === `function`;
     const shouldCreateNodeManifest = isPreview && createNodeManifestIsSupported && entryItem.isPreviewable && entryItem.title !== undefined;
+
     if (shouldCreateNodeManifest) {
         const updatedOn = entryItem.updatedOn;
         const manifestId = `${appKey}-${entryItem.id}-${updatedOn}`;
+        if (debug) console.log("Manifest: " + manifestId);
         unstable_createNodeManifest({
             manifestId,
             node: entryNode,

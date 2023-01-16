@@ -1,8 +1,9 @@
 const axios = require("./src/AxiosHelper");
 const { mergeData, createNodeManifest } = require("./src/DataHelper");
 const moment = require("moment");
+const package = require("./package.json");
 
-exports.onPreInit = () => console.log("Loaded gatsby-source-storm");
+exports.onPreInit = () => console.log(`Loaded gatsby-source-storm@${package.version}`);
 
 exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache }, pluginOptions) => {
     const { createNode, unstable_createNodeManifest } = actions;
@@ -29,7 +30,7 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
     const slugList = []; // check for dups
 
     if (!pluginOptions.appkey) {
-        console.log("gatsby-cource-storm error: appkey wasn't given");
+        console.log("gatsby-source-storm error: appkey wasn't given");
         return;
     }
 
@@ -45,7 +46,10 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
             return;
         });
 
-    if (pluginOptions.debug) console.log(data.contentTypes);
+    if (pluginOptions.debug) {
+        console.log(data.contentTypes);
+        console.log(`Preview: ${process.env.GATSBY_IS_PREVIEW?.toString()}`);
+    }
 
     // Create all the gatsby nodes
     try {
@@ -72,15 +76,6 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
             if (isSlugDup(slugList, y)) return;
 
             const n = createNode(contentTypeNode);
-
-            // for these, create a manifest so we can handle incremental builds
-            /*
-            createNodeManifest({
-                entryItem: y,
-                entryNode: n,
-                appKey: pluginOptions.appkey,
-                unstable_createNodeManifest,
-            });*/
 
             if (pluginOptions.debug) console.log(`ContentType: ${y.slug}`);
 
@@ -132,6 +127,7 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
                         entryNode: gatsbyNode,
                         appKey: pluginOptions.appkey,
                         unstable_createNodeManifest,
+                        debug: pluginOptions.debug,
                     });
                 });
         });
@@ -154,14 +150,6 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
                 },
             };
             const n = createNode(listNode);
-
-            // for these, create a manifest so we can handle incremental builds
-            createNodeManifest({
-                entryItem: c,
-                entryNode: n,
-                appKey: pluginOptions.appkey,
-                unstable_createNodeManifest,
-            });
         });
 
         // go through menus to create stormMenus/allStormMenus
@@ -183,14 +171,6 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
             };
 
             const n = createNode(menuNode);
-
-            // for these, create a manifest so we can handle incremental builds
-            createNodeManifest({
-                entryItem: c,
-                entryNode: n,
-                appKey: pluginOptions.appkey,
-                unstable_createNodeManifest,
-            });
         });
 
         // forms
@@ -212,14 +192,6 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
             };
 
             const n = createNode(formNode);
-
-            // for these, create a manifest so we can handle incremental builds
-            createNodeManifest({
-                entryItem: c,
-                entryNode: n,
-                appKey: pluginOptions.appkey,
-                unstable_createNodeManifest,
-            });
         });
 
         // go through settings to create stormSettings/allStormSettings
@@ -241,14 +213,6 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
             };
 
             const n = createNode(menuNode);
-
-            // for these, create a manifest so we can handle incremental builds
-            createNodeManifest({
-                entryItem: c,
-                entryNode: n,
-                appKey: pluginOptions.appkey,
-                unstable_createNodeManifest,
-            });
         });
     } catch (error) {
         console.error(error);

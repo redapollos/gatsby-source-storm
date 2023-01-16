@@ -1,6 +1,6 @@
 {
     "name": "gatsby-source-storm",
-    "version": "0.1.9",
+    "version": "0.2.1",
     "description": "Gatsby source plugin for retrieving data from the Storm CMS",
     "main": "index.js",
     "scripts": {
