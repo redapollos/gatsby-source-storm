@@ -83,6 +83,8 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
             data.contentList
                 .filter((o) => o.contentTypeSlug === y.slug)
                 .forEach((c) => {
+                    if (!!!c.slug) return;
+
                     // check for media and references and forms
                     c.meta = getMetaChildren(data, c.meta);
 
@@ -124,8 +126,8 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
                     // for these, create a manifest so we can handle incremental builds
                     createNodeManifest({
                         entryItem: c,
-                        entryNode: gatsbyNode,
                         appKey: pluginOptions.appkey,
+                        entryNode: gatsbyNode,
                         unstable_createNodeManifest,
                         debug: pluginOptions.debug,
                     });

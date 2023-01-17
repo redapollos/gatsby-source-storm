@@ -22,7 +22,7 @@ instance.getData = (url, appkey) => {
         headers: {
             "Content-Type": "application/json",
             AppKey: appkey,
-            ispreview: process.env.GATSBY_IS_PREVIEW === true,
+            ispreview: process.env.GATSBY_IS_PREVIEW === `true`,
         },
     };
     console.log(url);
