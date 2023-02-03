@@ -78,60 +78,55 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
             const n = createNode(contentTypeNode);
 
             if (pluginOptions.debug) console.log(`ContentType: ${y.slug}`);
+        });
 
-            // loop through all the content types/content and fill out the gatsby nodes
-            data.contentList
-                .filter((o) => o.contentTypeSlug === y.slug)
-                .forEach((c) => {
-                    if (!!!c.slug) return;
+        // loop through all the content and fill out the gatsby nodes
+        data.contentList.forEach((c) => {
+            if (!!!c.slug) return;
 
-                    // check for media and references and forms
-                    c.meta = getMetaChildren(data, c.meta);
+            // check for media and references and forms
+            c.meta = getMetaChildren(data, c.meta);
 
-                    // calculate some unique values
-                    const childId = createNodeId(`storm${c.id}`);
+            // calculate some unique values
+            const childId = createNodeId(`storm${c.id}`);
 
-                    // if we have a dup, then we have problems
-                    if (isSlugDup(slugList, c)) return;
+            // Regular Entry
+            const contentNode = {
+                ...c, // pass all data into this object
+                contentId: c.id,
+                slug: c.slug,
+                sourceInstanceName: pluginName,
+                id: childId,
+                children: [],
+                parent: pluginName,
+                internal: {
+                    type: `StormContent`, // the name of the node used in graphQL
+                    contentDigest: createContentDigest(c),
+                    description: `A piece of Storm Content`,
+                },
+            };
 
-                    // Regular Entry
-                    const contentNode = {
-                        ...c, // pass all data into this object
-                        contentId: c.id,
-                        slug: c.slug,
-                        sourceInstanceName: pluginName,
-                        id: childId,
-                        children: [],
-                        parent: pluginName,
-                        internal: {
-                            type: `Storm${y.name.replace(" ", "")}`, // the name of the node used in graphQL
-                            contentDigest: createContentDigest(c),
-                            description: `A piece of Storm Content - ${y.name}`,
-                        },
-                    };
+            // map all meta into first rate properties
+            for (let m of c.meta) {
+                contentNode[sluggify(m.name)] = m.value;
 
-                    // map all meta into first rate properties
-                    for (let m of c.meta) {
-                        contentNode[sluggify(m.name)] = m.value;
+                // if date or time, create a numeric field equivalent
+                if ((m.fieldType === 7 || m.fieldType === 8 || m.fieldType === 9) && m.value) {
+                    contentNode[`${sluggify(m.name)}_isFuture`] = Date.parse(m.value) > utcNow;
+                    contentNode[`${sluggify(m.name)}_milliseconds`] = m.value ? parseInt(Date.parse(m.value), 10) : 0;
+                }
+            }
 
-                        // if date or time, create a numeric field equivalent
-                        if ((m.fieldType === 7 || m.fieldType === 8 || m.fieldType === 9) && m.value) {
-                            contentNode[`${sluggify(m.name)}_isFuture`] = Date.parse(m.value) > utcNow;
-                            contentNode[`${sluggify(m.name)}_milliseconds`] = m.value ? parseInt(Date.parse(m.value), 10) : 0;
-                        }
-                    }
+            const gatsbyNode = createNode(contentNode);
 
-                    const gatsbyNode = createNode(contentNode);
-
-                    // for these, create a manifest so we can handle incremental builds
-                    createNodeManifest({
-                        entryItem: c,
-                        appKey: pluginOptions.appkey,
-                        entryNode: gatsbyNode,
-                        unstable_createNodeManifest,
-                        debug: pluginOptions.debug,
-                    });
-                });
+            // for these, create a manifest so we can handle incremental builds
+            createNodeManifest({
+                entryItem: c,
+                appKey: pluginOptions.appkey,
+                entryNode: gatsbyNode,
+                unstable_createNodeManifest,
+                debug: pluginOptions.debug,
+            });
         });
 
         // systemlists
