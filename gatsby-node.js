@@ -122,8 +122,7 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
             // for these, create a manifest so we can handle incremental builds
             createNodeManifest({
                 entryItem: c,
-                appKey: pluginOptions.appkey,
-                entryNode: gatsbyNode,
+                entryNode: contentNode,
                 unstable_createNodeManifest,
                 debug: pluginOptions.debug,
             });
