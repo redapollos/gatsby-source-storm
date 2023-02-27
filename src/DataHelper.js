@@ -2,7 +2,7 @@ let warnOnceForNoSupport = false;
 
 var mergeData = function (full, partial) {
     console.log(
-        `Storm Data :: Content: ${partial.contentList.length} added ${partial.contentListDeleted.length} removed, ContentTypes: ${partial.contentTypes.length}, SystemLists: ${partial.systemLists.length}, Menus: ${partial.menus.length}, Forms: ${partial.forms.length}, Settings: ${partial.settings.length}`
+        `Storm Data :: Content: ${partial.contentList.length} added ${partial.contentListDeleted.length} removed, ContentTypes: ${partial.contentTypes.length}, Media: ${partial.media.length}, SystemLists: ${partial.systemLists.length}, Menus: ${partial.menus.length}, Forms: ${partial.forms.length}, Settings: ${partial.settings.length}`
     );
 
     if (!full) return partial;
@@ -14,6 +14,10 @@ var mergeData = function (full, partial) {
 
     full.contentList = full.contentList.map((o, i) => {
         return partial.contentList.some((y) => y.id === o.id) ? partial.contentList.find((y) => y.id === o.id) : o;
+    });
+
+    full.media = full.media.map((o, i) => {
+        return partial.media.some((y) => y.id === o.id) ? partial.media.find((y) => y.id === o.id) : o;
     });
 
     full.systemLists = full.systemLists.map((o, i) => {
@@ -35,6 +39,7 @@ var mergeData = function (full, partial) {
     // adds
     const newContentTypes = partial.contentTypes.filter((o) => !full.contentTypes.some((x) => x.id === o.id));
     const newContentList = partial.contentList.filter((o) => !full.contentList.some((x) => x.id === o.id));
+    const newMedia = partial.media.filter((o) => !full.media.some((x) => x.id === o.id));
     const newSystemLists = partial.systemLists.filter((o) => !full.systemLists.some((x) => x.id === o.id));
     const newMenus = partial.menus.filter((o) => !full.menus.some((x) => x.id === o.id));
     const newForms = partial.forms.filter((o) => !full.forms.some((x) => x.id === o.id));
@@ -42,6 +47,7 @@ var mergeData = function (full, partial) {
 
     if (newContentTypes) full.contentTypes = full.contentTypes.concat(newContentTypes);
     if (newContentList) full.contentList = full.contentList.concat(newContentList);
+    if (newMedia) full.media = full.media.concat(newMedia);
     if (newSystemLists) full.systemLists = full.systemLists.concat(newSystemLists);
     if (newMenus) full.menus = full.menus.concat(newMenus);
     if (newForms) full.forms = full.forms.concat(newForms);
