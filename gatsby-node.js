@@ -1,6 +1,6 @@
 const axios = require("./src/AxiosHelper");
 const { mergeData, createNodeManifest } = require("./src/DataHelper");
-const moment = require("moment");
+const dayjs = require("dayjs");
 const package = require("./package.json");
 
 exports.onPreInit = () => console.log(`Loaded gatsby-source-storm@${package.version}`);
@@ -24,7 +24,7 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
     const cachedData = !pluginOptions.debug ? await cache.get(cacheKey) : null;
     // only get updated info if we have previous data, otherwise, get everything
     const lastFetched = cachedData ? await cache.get(cacheTimestamp) : null;
-    const datePart = lastFetched ? `/${moment(lastFetched).format()}` : "";
+    const datePart = lastFetched ? `/${dayjs(lastFetched).format()}` : "";
     const url = `https://${pluginOptions.host}/api/system/export${datePart}`;
     const utcNow = new Date().getTime();
     const slugList = []; // check for dups
@@ -107,7 +107,7 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
             };
 
             // map all meta into first rate properties
-            for (let m of c.meta) {
+            for (let m of c.meta.values) {
                 contentNode[sluggify(m.name)] = m.value;
 
                 // if date or time, create a numeric field equivalent
@@ -210,6 +210,26 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId, cache
 
             const n = createNode(menuNode);
         });
+
+        // go through locations to create stormLocations/allStormLocations
+        data.locations.forEach((c) => {
+            const childId = createNodeId(`${pluginName}${c.id}location`);
+            const menuNode = {
+                ...c, // pass all data into this object
+                locationId: c.id,
+                sourceInstanceName: pluginName,
+                id: childId,
+                children: [],
+                parent: pluginName,
+                internal: {
+                    type: "StormLocations", // the name of the node used in graphQL
+                    contentDigest: createContentDigest(c),
+                    description: "Storm Locations",
+                },
+            };
+
+            const n = createNode(menuNode);
+        });
     } catch (error) {
         console.error(error);
     }
@@ -247,7 +267,7 @@ function getPropertyValue(properties, slug, def = null) {
 
 // recursive function for mining meta references and media
 function getMetaChildren(content, meta) {
-    meta = meta.map((o, i) => {
+    meta.values = meta.values.map((o, i) => {
         if (o.fieldTypeName === "media") {
             let media = []; // always possible to have more than one so we need an array
             let values = o.value?.split(",") || [];
@@ -282,9 +302,20 @@ function getMetaChildren(content, meta) {
             }
             return forms.length > 0 ? { ...o, forms } : o;
         }
+        if (o.fieldTypeName === "location") {
+            let locations = []; // always possible to have more than one so we need an array
+            let values = o.value?.split(",") || [];
+            for (let a = 0; a < values.length; a++) {
+                let r = content.locations.find((m) => m.id.toString() === values[a]);
+                if (r) {
+                    locations.push(r);
+                }
+            }
+            return locations.length > 0 ? { ...o, locations } : o;
+        }
         return o;
     });
-
+    //console.log(meta);
     return meta;
 }
 //#endregion

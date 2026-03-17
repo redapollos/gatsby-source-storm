@@ -36,6 +36,10 @@ var mergeData = function (full, partial) {
         return partial.settings.some((y) => y.id === o.id) ? partial.settings.find((y) => y.id === o.id) : o;
     });
 
+    full.locations = full.locations.map((o, i) => {
+        return partial.locations.some((y) => y.id === o.id) ? partial.locations.find((y) => y.id === o.id) : o;
+    });
+
     // adds
     const newContentTypes = partial.contentTypes.filter((o) => !full.contentTypes.some((x) => x.id === o.id));
     const newContentList = partial.contentList.filter((o) => !full.contentList.some((x) => x.id === o.id));
@@ -44,6 +48,7 @@ var mergeData = function (full, partial) {
     const newMenus = partial.menus.filter((o) => !full.menus.some((x) => x.id === o.id));
     const newForms = partial.forms.filter((o) => !full.forms.some((x) => x.id === o.id));
     const newSettings = partial.settings.filter((o) => !full.settings.some((x) => x.id === o.id));
+    const newLocations = partial.locations.filter((o) => !full.locations.some((x) => x.id === o.id));
 
     if (newContentTypes) full.contentTypes = full.contentTypes.concat(newContentTypes);
     if (newContentList) full.contentList = full.contentList.concat(newContentList);
@@ -52,6 +57,7 @@ var mergeData = function (full, partial) {
     if (newMenus) full.menus = full.menus.concat(newMenus);
     if (newForms) full.forms = full.forms.concat(newForms);
     if (newSettings) full.settings = full.settings.concat(newSettings);
+    if (newLocations) full.locations = full.locations.concat(newLocations);
 
     // deletes
     if (partial.contentListDeleted) {
@@ -70,7 +76,7 @@ var createNodeManifest = function ({
     // This env variable is provided automatically on Gatsby Cloud hosting
     const isPreview = process.env.GATSBY_IS_PREVIEW === `true`;
     const createNodeManifestIsSupported = typeof unstable_createNodeManifest === `function`;
-    const shouldCreateNodeManifest = isPreview && createNodeManifestIsSupported && entryItem.isPreviewable && entryItem.title !== undefined;
+    const shouldCreateNodeManifest = isPreview && createNodeManifestIsSupported && entryItem.isPage && entryItem.title !== undefined;
 
     if (shouldCreateNodeManifest) {
         if (debug) {
